@@ -11,7 +11,7 @@ local SETTINGS = {
     COOLDOWN_TIME = 5 * 60,
     COUNTDOWN_TIME = 2,
     ERROR_RETRY_DELAY = 3,  -- 3 секунды при ошибке
-    SUCCESS_DELAY = 3       -- 6 секунд при успехе
+    SUCCESS_DELAY = 3      -- 6 секунд при успехе
 }
 
 -- Хранилище данных
