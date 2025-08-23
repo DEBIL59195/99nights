@@ -12,7 +12,7 @@ local SETTINGS = {
     COOLDOWN_TIME = 5 * 60,
     COUNTDOWN_TIME = 2,
     ERROR_RETRY_DELAY = 3,  -- 3 ÑÐµÐºÑÐ½Ð´Ñ Ð¿ÑÐ¸ Ð¾ÑÐ¸Ð±ÐºÐµ
-    SUCCESS_DELAY = 3      -- 6 ÑÐµÐºÑÐ½Ð´ Ð¿ÑÐ¸ ÑÑÐ¿ÐµÑÐµ
+    SUCCESS_DELAY = 7      -- 6 ÑÐµÐºÑÐ½Ð´ Ð¿ÑÐ¸ ÑÑÐ¿ÐµÑÐµ
 }
 
 -- Ð¥ÑÐ°Ð½Ð¸Ð»Ð¸ÑÐµ Ð´Ð°Ð½Ð½ÑÑ
