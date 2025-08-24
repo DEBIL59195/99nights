@@ -5,22 +5,22 @@ local HttpService = game:GetService("HttpService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
--- ÐÐ°ÑÑÑÐ¾Ð¹ÐºÐ¸
+-- Настройки
 local SETTINGS = {
     GAME_ID = 126509999114328,
     PASTEFY_URL = "https://raw.githubusercontent.com/DEBIL59195/99nights/refs/heads/main/server.lua",
     COOLDOWN_TIME = 5 * 60,
     COUNTDOWN_TIME = 2,
-    ERROR_RETRY_DELAY = 3,  -- 3 ÑÐµÐºÑÐ½Ð´Ñ Ð¿ÑÐ¸ Ð¾ÑÐ¸Ð±ÐºÐµ
-    SUCCESS_DELAY = 7      -- 6 ÑÐµÐºÑÐ½Ð´ Ð¿ÑÐ¸ ÑÑÐ¿ÐµÑÐµ
+    ERROR_RETRY_DELAY = 3,  -- 3 секунды при ошибке
+    SUCCESS_DELAY = 7       -- 6 секунд при успехе
 }
 
--- Ð¥ÑÐ°Ð½Ð¸Ð»Ð¸ÑÐµ Ð´Ð°Ð½Ð½ÑÑ
+-- Хранилище данных
 local SERVER_LIST = {}
 local BLACKLIST = {}
 local SHOW_COUNTDOWN = true
 
--- Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ GUI
+-- Создание GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TeleportStatusGUI"
 screenGui.Parent = game:GetService("CoreGui")
@@ -51,7 +51,7 @@ local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -20, 0, 60)
 status.Position = UDim2.new(0, 10, 0, 35)
 status.BackgroundTransparency = 1
-status.Text = "ÐÐ°Ð³ÑÑÐ·ÐºÐ° ÑÐ¿Ð¸ÑÐºÐ° ÑÐµÑÐ²ÐµÑÐ¾Ð²..."
+status.Text = "Загрузка списка серверов..."
 status.TextColor3 = Color3.fromRGB(200, 200, 200)
 status.Font = Enum.Font.Gotham
 status.TextSize = 14
@@ -75,7 +75,7 @@ local corner2 = Instance.new("UICorner")
 corner2.CornerRadius = UDim.new(0, 4)
 corner2.Parent = closeButton
 
--- ÐÐ½Ð¸Ð¼Ð°ÑÐ¸Ñ Ð·Ð°ÐºÑÑÑÐ¸Ñ
+-- Анимация закрытия
 closeButton.MouseButton1Click:Connect(function()
     local tween = TweenService:Create(frame, TweenInfo.new(0.3), {Position = UDim2.new(0.5, -125, 1, 130)})
     tween:Play()
@@ -83,7 +83,7 @@ closeButton.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
 
--- ÐÐµÑÐµÑÐ°ÑÐºÐ¸Ð²Ð°Ð½Ð¸Ðµ GUI
+-- Перетаскивание GUI
 local dragging = false
 local dragStartPos, frameStartPos
 
@@ -109,13 +109,13 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- ÐÐ±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ðµ ÑÑÐ°ÑÑÑÐ° Ð² GUI
+-- Обновление статуса в GUI
 local function UpdateStatus(text, color)
     status.Text = text
     status.TextColor3 = color or Color3.fromRGB(200, 200, 200)
 end
 
--- ÐÑÐ¾Ð²ÐµÑÐºÐ° Ð²ÑÐµÑ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½ÑÑ Ð¾ÑÐ¸Ð±Ð¾Ðº ÑÐµÐ»ÐµÐ¿Ð¾ÑÑÐ°ÑÐ¸Ð¸
+-- Проверка всех возможных ошибок телепортации
 local function IsTeleportError(err)
     local errorStr = tostring(err)
     return string.find(errorStr, "Unauthorized") ~= nil or
@@ -131,7 +131,7 @@ local function LoadServers()
     end)
     
     if not success then 
-        UpdateStatus("â ÐÑÐ¸Ð±ÐºÐ° Ð·Ð°Ð³ÑÑÐ·ÐºÐ¸ ÑÐ¿Ð¸ÑÐºÐ° ÑÐµÑÐ²ÐµÑÐ¾Ð²:\n"..tostring(response):sub(1, 100), Color3.fromRGB(255, 100, 100))
+        UpdateStatus("❌ Ошибка загрузки списка серверов:\n"..tostring(response):sub(1, 100), Color3.fromRGB(255, 100, 100))
         return {}
     end
     
@@ -150,13 +150,13 @@ end
 local function TryTeleport(target)
     if SHOW_COUNTDOWN then
         for i = SETTINGS.COUNTDOWN_TIME, 1, -1 do
-            UpdateStatus("ð ÐÐ¾Ð´ÐºÐ»ÑÑÐµÐ½Ð¸Ðµ ÑÐµÑÐµÐ· "..i.." ÑÐµÐº...", Color3.fromRGB(255, 255, 150))
+            UpdateStatus("🕒 Подключение через "..i.." сек...", Color3.fromRGB(255, 255, 150))
             task.wait(1)
         end
         SHOW_COUNTDOWN = false
     end
     
-    UpdateStatus("ð ÐÐ¾Ð´ÐºÐ»ÑÑÐµÐ½Ð¸Ðµ Ðº ÑÐµÑÐ²ÐµÑÑ...", Color3.fromRGB(150, 255, 150))
+    UpdateStatus("🔗 Подключение к серверу...", Color3.fromRGB(150, 255, 150))
     
     local success, err = pcall(function()
         TeleportService:TeleportToPlaceInstance(
@@ -168,17 +168,17 @@ local function TryTeleport(target)
     
     if not success then
         if IsTeleportError(err) then
-            UpdateStatus("â ÐÑÐ¸Ð±ÐºÐ°:\n"..tostring(err):match("^[^\n]+"):sub(1, 100), Color3.fromRGB(255, 100, 100))
+            UpdateStatus("⛔ Ошибка:\n"..tostring(err):match("^[^\n]+"):sub(1, 100), Color3.fromRGB(255, 100, 100))
         else
-            UpdateStatus("â  ÐÐµÐ¸Ð·Ð²ÐµÑÑÐ½Ð°Ñ Ð¾ÑÐ¸Ð±ÐºÐ°:\n"..tostring(err):match("^[^\n]+"):sub(1, 100), Color3.fromRGB(255, 150, 100))
+            UpdateStatus("⚠ Неизвестная ошибка:\n"..tostring(err):match("^[^\n]+"):sub(1, 100), Color3.fromRGB(255, 150, 100))
         end
         BLACKLIST[target] = os.time()
-        UpdateStatus("â³ ÐÐ¾Ð²ÑÐ¾Ñ ÑÐµÑÐµÐ· "..SETTINGS.ERROR_RETRY_DELAY.." ÑÐµÐº...", Color3.fromRGB(255, 200, 100))
+        UpdateStatus("⏳ Повтор через "..SETTINGS.ERROR_RETRY_DELAY.." сек...", Color3.fromRGB(255, 200, 100))
         task.wait(SETTINGS.ERROR_RETRY_DELAY)
         return false
     end
     
-    UpdateStatus("â Ð£ÑÐ¿ÐµÑÐ½Ð¾Ðµ Ð¿Ð¾Ð´ÐºÐ»ÑÑÐµÐ½Ð¸Ðµ!\nÐÐ°Ð²ÐµÑÑÐµÐ½Ð¸Ðµ ÑÐµÑÐµÐ· "..SETTINGS.SUCCESS_DELAY.." ÑÐµÐº...", Color3.fromRGB(100, 255, 100))
+    UpdateStatus("✅ Успешное подключение!\nЗавершение через "..SETTINGS.SUCCESS_DELAY.." сек...", Color3.fromRGB(100, 255, 100))
     task.wait(SETTINGS.SUCCESS_DELAY)
     return true
 end
@@ -187,10 +187,10 @@ local function TeleportLoop()
     while true do
         SERVER_LIST = LoadServers()
         if #SERVER_LIST == 0 then
-            UpdateStatus("â  Ð¡Ð¿Ð¸ÑÐ¾Ðº ÑÐµÑÐ²ÐµÑÐ¾Ð² Ð¿ÑÑÑ\nÐÐ¾Ð²ÑÐ¾Ñ ÑÐµÑÐµÐ· 10 ÑÐµÐº...", Color3.fromRGB(255, 200, 100))
+            UpdateStatus("⚠ Список серверов пуст\nПовтор через 10 сек...", Color3.fromRGB(255, 200, 100))
             task.wait(10)
         else
-            UpdateStatus("â ÐÐ¾ÑÑÑÐ¿Ð½Ð¾ ÑÐµÑÐ²ÐµÑÐ¾Ð²: "..#SERVER_LIST, Color3.fromRGB(150, 255, 150))
+            UpdateStatus("✅ Доступно серверов: "..#SERVER_LIST, Color3.fromRGB(150, 255, 150))
             break
         end
     end
@@ -204,27 +204,27 @@ local function TeleportLoop()
         end
         
         if #available == 0 then
-            UpdateStatus("â³ ÐÑÐµ ÑÐµÑÐ²ÐµÑÑ Ð½Ð° ÐºÐ´\nÐÐ¶Ð¸Ð´Ð°Ð½Ð¸Ðµ "..SETTINGS.COOLDOWN_TIME.." ÑÐµÐº...", Color3.fromRGB(255, 200, 100))
+            UpdateStatus("⏳ Все серверы на кд\nОжидание "..SETTINGS.COOLDOWN_TIME.." сек...", Color3.fromRGB(255, 200, 100))
             SHOW_COUNTDOWN = true
             task.wait(SETTINGS.COOLDOWN_TIME)
             SERVER_LIST = LoadServers()
         else
             local target = available[math.random(1, #available)]
-            UpdateStatus("ð ÐÐ¾Ð¿ÑÑÐºÐ° Ð¿Ð¾Ð´ÐºÐ»ÑÑÐµÐ½Ð¸Ñ Ðº:\n"..target:sub(1, 8).."...", Color3.fromRGB(200, 200, 255))
+            UpdateStatus("🔍 Попытка подключения к:\n"..target:sub(1, 8).."...", Color3.fromRGB(200, 200, 255))
             
             if TryTeleport(target) then
-                UpdateStatus("ð Ð£ÑÐ¿ÐµÑÐ½Ð¾Ðµ Ð¿Ð¾Ð´ÐºÐ»ÑÑÐµÐ½Ð¸Ðµ!", Color3.fromRGB(100, 255, 100))
+                UpdateStatus("🚀 Успешное подключение!", Color3.fromRGB(100, 255, 100))
                 break
             end
         end
     end
 end
 
--- ÐÑÐ½Ð¾Ð²Ð½Ð¾Ð¹ ÑÐ¸ÐºÐ»
+-- Основной цикл
 while true do
     local success, err = pcall(TeleportLoop)
     if not success then
-        UpdateStatus("ð ÐÑÐ¸ÑÐ¸ÑÐµÑÐºÐ°Ñ Ð¾ÑÐ¸Ð±ÐºÐ°:\n"..tostring(err):sub(1, 100), Color3.fromRGB(255, 100, 100))
+        UpdateStatus("🛑 Критическая ошибка:\n"..tostring(err):sub(1, 100), Color3.fromRGB(255, 100, 100))
         SHOW_COUNTDOWN = true
         task.wait(5)
     end
