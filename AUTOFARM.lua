@@ -10,9 +10,9 @@ local SETTINGS = {
     GAME_ID = 126509999114328,
     PASTEFY_URL = "https://raw.githubusercontent.com/DEBIL59195/99nights/refs/heads/main/server.lua",
     COOLDOWN_TIME = 5 * 60,
-    COUNTDOWN_TIME = 2,
+    COUNTDOWN_TIME = 10,
     ERROR_RETRY_DELAY = 3,  -- 3 секунды при ошибке
-    SUCCESS_DELAY = 7       -- 6 секунд при успехе
+    SUCCESS_DELAY = 2       -- 6 секунд при успехе
 }
 
 -- Хранилище данных
